@@ -1,4 +1,4 @@
-import { Get, BaseUrl, generateSwaggerYaml, AbstractRouter, Post, Body } from '../src';
+import { AbstractRouter, BaseUrl, Body, Get, Post } from '../src';
 import { NodeStorage } from '../src/storage';
 describe('abstract routes', () => {
   @AbstractRouter
@@ -52,7 +52,7 @@ describe('abstract routes', () => {
 
     const teachersNode = storageInstance.findNodeByName(Teacher.name);
     const teachersCreateEndpoint = storageInstance.findEndpointByName(Teacher.name, 'create');
-    
+
     expect(teachersNode.endpoints.length).toEqual(2);
     expect(teachersCreateEndpoint).toBeTruthy();
     expect(teachersCreateEndpoint.name).toEqual('create');

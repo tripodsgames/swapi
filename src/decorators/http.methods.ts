@@ -1,37 +1,37 @@
-import { Endpoint, HttpMethods } from '../types';
-import { pullOutParamsFromUrl, urlResolve } from '../helpers';
-import { NodeStorage } from '../storage';
+import { pullOutParamsFromUrl } from '../helpers';
 import { normalizePath } from '../helpers/normalize.path';
+import { NodeStorage } from '../storage';
+import { Endpoint, HttpMethods } from '../types';
 
-export function Get(path: string, description: string = '') {
-  return BasicHttpMethodDecorator(path, HttpMethods.GET, description);
-}
+export const Get = (path: string, description: string = '') => {
+  return HttpMethodDecorator(HttpMethods.GET, path, description);
+};
 
-export function Post(path: string, description: string = '') {
-  return BasicHttpMethodDecorator(path, HttpMethods.POST, description);
-}
+export const Post = (path: string, description: string = '') => {
+  return HttpMethodDecorator(HttpMethods.POST, path, description);
+};
 
-export function Put(path: string, description: string = '') {
-  return BasicHttpMethodDecorator(path, HttpMethods.PUT, description);
-}
+export const Put = (path: string, description: string = '') => {
+  return HttpMethodDecorator(HttpMethods.PUT, path, description);
+};
 
-export function Patch(path: string, description: string = '') {
-  return BasicHttpMethodDecorator(path, HttpMethods.PATCH, description);
-}
+export const Patch = (path: string, description: string = '') => {
+  return HttpMethodDecorator(HttpMethods.PATCH, path, description);
+};
 
-export function Delete(path: string, description: string = '') {
-  return BasicHttpMethodDecorator(path, HttpMethods.DELETE, description);
-}
+export const Delete = (path: string, description: string = '') => {
+  return HttpMethodDecorator(HttpMethods.DELETE, path, description);
+};
 
-function BasicHttpMethodDecorator(
-  path: string,
+export const HttpMethodDecorator = (
   method: HttpMethods,
+  path: string,
   description: string = ''
-) {
+): MethodDecorator => {
   path = normalizePath(path);
   const urlParams = pullOutParamsFromUrl(path);
 
-  return (target: any, endpointName: string, descriptor: PropertyDescriptor) => {
+  return (target: Object, endpointName: string) => {
     const nodeName = target.constructor.name;
 
     const endpoint = {
@@ -43,5 +43,5 @@ function BasicHttpMethodDecorator(
     } as Endpoint;
 
     NodeStorage.getInstance().upsertEndpoint(nodeName, endpoint.name, endpoint);
-  }
-}
+  };
+};

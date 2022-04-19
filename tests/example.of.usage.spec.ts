@@ -1,20 +1,11 @@
+import { sortBy } from 'lodash';
 import {
-  BaseUrl,
-  Get,
-  Param,
-  Post,
-  Patch,
-  Delete,
-  Query,
-  Body,
-  Put,
-  Response,
-  addResponseType
+  addResponseType, BaseUrl, Body, Delete, Get,
+  Param, Patch, Post, Put, Query, Response
 } from '../src/decorators';
 import { NodeStorage } from '../src/storage';
-import { Response as ResponseType, Parameter } from '../src/types';
 import { generateSwaggerJson, generateSwaggerYaml } from '../src/sw.generator';
-import { sortBy } from 'lodash';
+import { Parameter, ResponseStore as ResponseType } from '../src/types';
 
 describe('AIO test', () => {
   const ownerBaseUrl = 'owners';
@@ -96,9 +87,9 @@ describe('AIO test', () => {
 
   function checkParams(params: Array<Parameter>) {
     params.forEach(({ type, name }) => {
-        expect(typeof type).toEqual('string');
-        expect(typeof name).toEqual('string');
-      });
+      expect(typeof type).toEqual('string');
+      expect(typeof name).toEqual('string');
+    });
   }
 
   function checkResponse(res: ResponseType) {
@@ -211,7 +202,7 @@ describe('AIO test', () => {
       }
     ]);
 
-    const [ okResponse, forbiddenResponse ] = sortBy(updateDogEndpoint.responses, 'status');
+    const [okResponse, forbiddenResponse] = sortBy(updateDogEndpoint.responses, 'status');
 
     expect(okResponse.status).toEqual(204);
     expect(okResponse.description).toEqual('OK');

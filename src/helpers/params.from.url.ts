@@ -1,11 +1,8 @@
 import { Parameter } from '../types';
-import { concat } from 'lodash';
 import { generateParamMeta } from './generate.param.meta';
 
-export function pullOutParamsFromUrl(path: string): Array<Parameter> {
-  return path
-    .split('/')
+export const pullOutParamsFromUrl = (path: string): Array<Parameter> =>
+  path.split('/')
     .filter((part) => part.indexOf(':') === 0)
     .map((param) => param.slice(1))
-    .reduce((params, param) => concat(params, generateParamMeta(param)), [])
-}
+    .reduce((params, param) => params.concat(generateParamMeta(param)), []);

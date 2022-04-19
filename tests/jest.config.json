@@ -4,7 +4,7 @@
     },
     "globals": {
         "ts-jest": {
-          "tsConfigFile": "./tests/tsconfig.test.json"
+            "tsconfig": "./tests/tsconfig.test.json"
         }
     },
     "testRegex": "tests\/.*\\.spec\\.ts",
@@ -17,5 +17,8 @@
         "node"
     ],
     "collectCoverage": false,
-    "coveragePathIgnorePatterns": ["/node_modules/", "coverage"]
+    "coveragePathIgnorePatterns": [
+        "/node_modules/",
+        "coverage"
+    ]
 }

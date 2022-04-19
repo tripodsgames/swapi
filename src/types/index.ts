@@ -41,7 +41,7 @@ export interface Endpoint {
   bodyType: Types | string;
   bodyIsArray: boolean;
   query: Array<Parameter>;
-  responses: Array<Response>;
+  responses: Array<ResponseStore>;
 }
 
 export interface Parameter {
@@ -53,7 +53,7 @@ export interface Parameter {
   description?: string;
 }
 
-export interface Response {
+export interface ResponseStore {
   status: number;
   description: string;
   responseType: Types;
@@ -97,9 +97,9 @@ export interface SwaggerJson {
   consumes: Array<string>;
   produces: Array<string>;
   paths: {
-      [ path: string ]: {
-          [ method: string ]: SwaggerJsonMethod
-      }
+    [path: string]: {
+      [method: string]: SwaggerJsonMethod
+    }
   };
   definitions: {
     [name: string]: SwaggerJsonSchema;
@@ -128,7 +128,7 @@ export interface SwaggerJsonMethod {
   operationId?: string;
   produces?: Array<string>;
   parameters: Array<SwaggerJsonMethodParameter>;
-  responses: { [ status: string ]: SwaggerJsonMethodResponse };
+  responses: { [status: string]: SwaggerJsonMethodResponse };
 }
 
 export interface SwaggerJsonMethodParameter {
@@ -150,7 +150,7 @@ export interface SwaggerJsonMethodResponse {
 export interface SwaggerJsonSchema {
   type?: Types;
   $ref?: string;
-  properties?: { [ name: string ]: SwaggerJsonSchema };
+  properties?: { [name: string]: SwaggerJsonSchema };
   items?: SwaggerJsonSchema;
 }
 

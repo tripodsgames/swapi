@@ -1,27 +1,15 @@
+import { stringify } from 'json-to-pretty-yaml';
+import { camelCase } from 'lodash';
+import { resolve } from 'path';
+import { isReference, urlResolve } from '../helpers';
 import { NodeStorage } from '../storage';
 import {
-  PackageJsonScheme,
-  SwapiSettings,
-  SwaggerJson,
-  SwaggerJsonMethod,
-  ParameterLocation,
-  SwaggerJsonSchema,
-  Types,
-  HttpMethods,
-  SwaggerJsonMethodResponse,
-  Endpoint,
-  SwaggerJsonMethodParameter,
-  Response,
-  ResponseType,
-  Node,
-  Parameter
+  Endpoint, HttpMethods, Node, PackageJsonScheme, Parameter, ParameterLocation, ResponseStore,
+  ResponseType, SwaggerJson,
+  SwaggerJsonMethod, SwaggerJsonMethodParameter, SwaggerJsonMethodResponse, SwaggerJsonSchema, SwapiSettings, Types
 } from '../types';
-import { resolve } from 'path';
-import { concat, camelCase } from 'lodash';
-import { stringify } from 'json2yaml';
-import { pullOutParamsFromUrl, urlResolve, isReference } from '../helpers';
 
-export function generateSwaggerJson() {
+export const generateSwaggerJson = () => {
   const storageInstance = NodeStorage.getInstance();
 
   const packageJson = getPackageJson();
@@ -47,7 +35,7 @@ export function generateSwaggerJson() {
           };
         }
       });
-  });
+    });
 
   storageInstance.types.forEach((type) => {
     const definitions = generateSwaggerJsonDefinitionType(type);
@@ -58,7 +46,7 @@ export function generateSwaggerJson() {
   return swaggerJson;
 }
 
-export function generateSwaggerYaml() {
+export const generateSwaggerYaml = () => {
   const swJson = generateSwaggerJson();
 
   return swaggerJsonToYaml(swJson);
@@ -107,7 +95,7 @@ function generateSwaggerJsonMethod(node: Node, endpoint: Endpoint): SwaggerJsonM
     produces: packageJson.swapi.produces,
     responses: endpoint.responses.length ? {} : getDefaultResponseWithStatus(endpoint.method)
   } as SwaggerJsonMethod;
-  
+
   const parameters = prepareSwaggerMethodParams(endpoint, endpoint.name);
   if (parameters.length) {
     method.parameters = parameters;
@@ -127,12 +115,11 @@ function prepareSwaggerMethodParams(endpoint: Endpoint, operationId: string): Ar
 
   const headerParams = endpoint.header.map((param) => prepareInUrlParam(param, ParameterLocation.Header));
 
-  const parameters: Array<SwaggerJsonMethodParameter> = concat(queryParams, urlParams, headerParams);
+  const parameters: Array<SwaggerJsonMethodParameter> = [...queryParams, ...urlParams, ...headerParams];
 
   if (endpoint.body.length > 0 || !!endpoint.bodyType) {
     const bodyParams: any = prepareSwaggerMethodBodyParameter(endpoint, operationId);
-
-    return concat(parameters, bodyParams);
+    return parameters.concat(bodyParams);
   }
 
   return parameters;
@@ -168,7 +155,7 @@ function prepareInUrlParam(param: Parameter, location: ParameterLocation) {
 // NOTICE: available types: string, number, object, reference, string[], number[], object[], reference[]
 function prepareSwaggerMethodBodyParameter(endpoint: Endpoint, operationId: string) {
   const bodyParam: any = {
-    name: `${ operationId }Body`,
+    name: `${operationId}Body`,
     in: ParameterLocation.Body,
     schema: {}
   };
@@ -243,30 +230,30 @@ function prepareSwaggerMethodBodyParameter(endpoint: Endpoint, operationId: stri
   return bodyParam;
 }
 
-function prepareSwaggerMethodResponse(res: Response): SwaggerJsonMethodResponse {
+function prepareSwaggerMethodResponse(res: ResponseStore): SwaggerJsonMethodResponse {
   const schema = {} as SwaggerJsonSchema;
 
-    if (isReference(res.responseType)) {
-      const reference = createSwaggerReference(res.responseType);
+  if (isReference(res.responseType)) {
+    const reference = createSwaggerReference(res.responseType);
 
-      if (res.isArray) {
-        schema.type = Types.Array;
-        schema.items = { $ref: reference };
-      } else {
-        schema.$ref = reference;
-      }
+    if (res.isArray) {
+      schema.type = Types.Array;
+      schema.items = { $ref: reference };
     } else {
-      if (res.isArray) {
-        schema.type = Types.Array;
-        schema.items = { type: res.responseType };
-      } else {
-        schema.type = res.responseType;
-      }
+      schema.$ref = reference;
     }
-    return {
-      description: res.description,
-      schema
-    } as SwaggerJsonMethodResponse;
+  } else {
+    if (res.isArray) {
+      schema.type = Types.Array;
+      schema.items = { type: res.responseType };
+    } else {
+      schema.type = res.responseType;
+    }
+  }
+  return {
+    description: res.description,
+    schema
+  } as SwaggerJsonMethodResponse;
 }
 
 function getDefaultResponseWithStatus(method: HttpMethods): { [status: string]: SwaggerJsonMethodResponse } {
@@ -278,7 +265,7 @@ function getDefaultResponseWithStatus(method: HttpMethods): { [status: string]: 
   } else if (method === HttpMethods.PUT || method === HttpMethods.PATCH || HttpMethods.DELETE) {
     status = '204';
   }
-  
+
   return {
     [status]: {
       description: 'OK',

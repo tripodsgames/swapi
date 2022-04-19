@@ -1,56 +1,56 @@
 import { generateParamMeta, isReference } from '../helpers';
 import { NodeStorage } from '../storage';
-import { Types, ParameterLocation } from '../types';
+import { ParameterLocation, Types } from '../types';
 
-export function BodyIsArray(target: any, methodName: string) {
+export const BodyIsArray: MethodDecorator = (target: Object, methodName: string) => {
   const nodeName = target.constructor.name;
   const storageInstance = NodeStorage.getInstance();
 
   storageInstance.markBodyAsArray(nodeName, methodName);
-}
+};
 
-export function BodyIsObject(target: any, methodName: string) {
+export const BodyIsObject: MethodDecorator = (target: Object, methodName: string) => {
   setBodyType(target, methodName, Types.Object);
-}
+};
 
-export function BodyIsString(target: any, methodName: string) {
+export const BodyIsString: MethodDecorator = (target: Object, methodName: string) => {
   setBodyType(target, methodName, Types.String);
-}
+};
 
-export function BodyIsNumber(target: any, methodName: string) {
+export const BodyIsNumber: MethodDecorator = (target: Object, methodName: string) => {
   setBodyType(target, methodName, Types.Number);
-}
+};
 
-function setBodyType(target: any, methodName: string, type: Types) {
+export const setBodyType = (target: any, methodName: string, type: Types) => {
   const nodeName = target.constructor.name;
   const storageInstance = NodeStorage.getInstance();
 
-  storageInstance.setBodyType(nodeName, methodName, Types.String);
-}
+  storageInstance.setBodyType(nodeName, methodName, type);
+};
 
-export function Param(name: string | Object, type?: string) {
+export const Param = (name: string | Object, type?: string) => {
   return VariativeDataDecorator(name, ParameterLocation.UrlPath, type);
-}
+};
 
-export function Query(name: string | Object, type?: string, required?: boolean) {
+export const Query = (name: string | Object, type?: string, required?: boolean) => {
   return VariativeDataDecorator(name, ParameterLocation.Query, type, required);
-}
+};
 
-export function Body(name: string | Object, type?: string, required?: boolean) {
+export const Body = (name: string | Object, type?: string, required?: boolean) => {
   return VariativeDataDecorator(name, ParameterLocation.Body, type, required);
-}
+};
 
-export function Header(name: string | Object, type?: string, required?: boolean) {
+export const Header = (name: string | Object, type?: string, required?: boolean) => {
   return VariativeDataDecorator(name, ParameterLocation.Header, type, required);
-}
+};
 
-function VariativeDataDecorator(
+const VariativeDataDecorator = (
   name: string | Object,
   location: ParameterLocation,
   type?: string,
   required?: boolean
-) {
-  return (target: any, endpointName: string, descriptor: PropertyDescriptor) => {
+): MethodDecorator => {
+  return (target: Object, endpointName: string) => {
     const nodeName = target.constructor.name;
     const storageInstance = NodeStorage.getInstance();
 
@@ -73,15 +73,15 @@ function VariativeDataDecorator(
 
     if (typeof name === 'string') {
       const param = generateParamMeta(name, type, required);
-      
+
       addParam.call(storageInstance, nodeName, endpointName, param);
     } else {
       Object
         .entries(name)
-        .forEach(([ name, type ]) => {
+        .forEach(([name, type]) => {
           const param = generateParamMeta(name, type, required);
           addParam.call(storageInstance, nodeName, endpointName, param);
         });
     }
   }
-}
+};

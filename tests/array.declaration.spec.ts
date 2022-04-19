@@ -1,4 +1,4 @@
-import { Post, BaseUrl, Body, Response, generateSwaggerYaml, addResponseType, Get, BodyIsArray, Delete, Patch, generateSwaggerJson, BodyIsString, Header } from '../src';
+import { addResponseType, BaseUrl, Body, BodyIsArray, BodyIsString, Delete, generateSwaggerJson, generateSwaggerYaml, Header, Post, Response } from '../src';
 
 describe('declaration of array in param/query/body/response', () => {
   @BaseUrl('/dogs/')

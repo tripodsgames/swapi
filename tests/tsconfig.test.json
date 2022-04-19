@@ -1,12 +1,14 @@
 {
     "compilerOptions": {
-        "target": "esnext",
-        "module": "commonjs",
+        "target": "ES2020",
+        "module": "CommonJS",
         "noImplicitAny": true,
         "removeComments": true,
-        "sourceMap": true, 
+        "sourceMap": true,
         "outDir": "./dist",
         "declaration": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
         "paths": {
             "web3": [
                 "@types/web3/index.d.ts"
@@ -22,8 +24,8 @@
             ]
         },
         "typeRoots": [
-            "./node_modules/@types",
-            "./@types"
+            "../node_modules/@types",
+            "../@types"
         ]
     }
 }

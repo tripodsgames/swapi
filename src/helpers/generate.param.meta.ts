@@ -1,11 +1,11 @@
 import { Parameter } from '../types';
 
-export function generateParamMeta(
+export const generateParamMeta = (
   name: string,
   type: string = 'string',
   required?: boolean,
   isArray?: boolean,
-): Parameter {
+): Parameter => {
   if (type.lastIndexOf('*') === (type.length - 1)) {
     type = type.slice(0, type.length - 1);
     required = typeof required === 'boolean' ? required : true;

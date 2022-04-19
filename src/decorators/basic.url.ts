@@ -1,11 +1,11 @@
+import { normalizePath } from '../helpers/normalize.path';
 import { NodeStorage } from '../storage';
 import { Node } from '../types';
-import { normalizePath } from '../helpers/normalize.path';
 
-export function BaseUrl(path: string, relatedTo?: { new (...args: any[]): any }, pathCombiner: string = null) {
+export const BaseUrl = (path: string, relatedTo?: { new(...args: any[]): any }, pathCombiner: string = null): ClassDecorator => {
   path = normalizePath(path);
 
-  return function(constructor: any) {
+  return (constructor: Function) => {
     const node: Node = {
       name: constructor.name,
       path,
@@ -17,7 +17,7 @@ export function BaseUrl(path: string, relatedTo?: { new (...args: any[]): any },
     const storageInstance = NodeStorage.getInstance();
     storageInstance.upsertNode(node);
 
-    const inheritedNodeName = constructor.__proto__.name;
+    const inheritedNodeName = (constructor as any).__proto__.name;
     const inheritedNode = storageInstance.findNodeByName(inheritedNodeName);
 
     if (!inheritedNode) {
@@ -35,5 +35,4 @@ export function BaseUrl(path: string, relatedTo?: { new (...args: any[]): any },
       }
     });
   }
-}
-
+};

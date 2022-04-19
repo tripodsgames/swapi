@@ -1,11 +1,11 @@
-import { Node } from '../types';
 import { NodeStorage } from '../storage';
+import { Node } from '../types';
 
-export function AbstractRouter(constructor: any) {
+export const AbstractRouter: ClassDecorator = (constructor: Function) => {
   const node: Node = {
     name: constructor.name,
     isAbstract: true
   } as Node;
 
   NodeStorage.getInstance().upsertNode(node);
-}
+};

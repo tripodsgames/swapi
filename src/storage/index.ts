@@ -1,17 +1,7 @@
+import { generateParamMeta, pullOutParamsFromUrl, urlResolve } from '../helpers';
 import {
-  Node,
-  Endpoint,
-  HttpMethods,
-  Parameter,
-  Response,
-  Hashtable,
-  ResponseType,
-  ParameterLocation,
-  Types,
-  // PackageJsonScheme, SwaggerFile, SwapiSettings, SwaggerFileMethod
+  Endpoint, Hashtable, HttpMethods, Node, Parameter, ParameterLocation, ResponseStore, ResponseType, Types
 } from '../types';
-import { concat } from 'lodash';
-import { generateParamMeta, urlResolve, pullOutParamsFromUrl } from '../helpers';
 
 export class NodeStorage {
   private static instance: NodeStorage;
@@ -33,13 +23,13 @@ export class NodeStorage {
     return NodeStorage.instance;
   }
 
-  private constructor() {}
+  private constructor() { }
 
   public addNode(node: Node): void {
     if (node.relatedTo) {
       const relatedNode = this.findNodeByName(node.relatedTo);
 
-      if(!relatedNode) {
+      if (!relatedNode) {
         this.createNode(node.relatedTo, null);
       }
     }
@@ -124,7 +114,7 @@ export class NodeStorage {
     storedEndpoint.path = endpoint.path || storedEndpoint.path;
 
     if (endpoint.hasOwnProperty('urlParams')) {
-      Object.entries(endpoint.urlParams).forEach(([, param ]) => {
+      Object.entries(endpoint.urlParams).forEach(([, param]) => {
         const storedParam =
           this.findParameterByLocationAndName(nodeName, endpoint.name, ParameterLocation.UrlPath, param.name);
         if (storedParam && storedParam.type !== 'string' && param.type === 'string') {
@@ -135,7 +125,7 @@ export class NodeStorage {
       });
     }
     if (endpoint.hasOwnProperty('query')) {
-      Object.entries(endpoint.query).forEach(([, param ]) => {
+      Object.entries(endpoint.query).forEach(([, param]) => {
         const storedParam =
           this.findParameterByLocationAndName(nodeName, endpoint.name, ParameterLocation.Query, param.name);
         if (storedParam && storedParam.type !== 'string' && param.type === 'string') {
@@ -146,7 +136,7 @@ export class NodeStorage {
       });
     }
     if (endpoint.hasOwnProperty('body')) {
-      Object.entries(endpoint.body).forEach(([, param ]) => {
+      Object.entries(endpoint.body).forEach(([, param]) => {
         const storedParam =
           this.findParameterByLocationAndName(nodeName, endpoint.name, ParameterLocation.Body, param.name);
         if (storedParam && storedParam.type !== 'string' && param.type === 'string') {
@@ -172,7 +162,7 @@ export class NodeStorage {
     storedEndpoint.path = storedEndpoint.path || endpoint.path;
 
     if (endpoint.hasOwnProperty('urlParams')) {
-      Object.entries(endpoint.urlParams).forEach(([, param ]) => {
+      Object.entries(endpoint.urlParams).forEach(([, param]) => {
         const storedParam =
           this.findParameterByLocationAndName(nodeName, storedEndpoint.name, ParameterLocation.UrlPath, param.name);
 
@@ -183,7 +173,7 @@ export class NodeStorage {
     }
 
     if (endpoint.hasOwnProperty('query')) {
-      Object.entries(endpoint.query).forEach(([, param ]) => {
+      Object.entries(endpoint.query).forEach(([, param]) => {
         const storedParam =
           this.findParameterByLocationAndName(nodeName, storedEndpoint.name, ParameterLocation.Query, param.name);
 
@@ -194,7 +184,7 @@ export class NodeStorage {
     }
 
     if (endpoint.hasOwnProperty('body')) {
-      Object.entries(endpoint.body).forEach(([, param ]) => {
+      Object.entries(endpoint.body).forEach(([, param]) => {
         const storedParam =
           this.findParameterByLocationAndName(nodeName, storedEndpoint.name, ParameterLocation.Body, param.name);
 
@@ -389,7 +379,7 @@ export class NodeStorage {
     }
   }
 
-  public addResponse(nodeName: string, endpointName: string, response: Response) {
+  public addResponse(nodeName: string, endpointName: string, response: ResponseStore) {
     const endpoint = this.findOrCreateEndpointByName(nodeName, endpointName);
 
     endpoint.responses.push(response);
@@ -403,7 +393,7 @@ export class NodeStorage {
     isArray: boolean = false,
     description: string = 'OK'
   ) {
-    const response: Response = {
+    const response: ResponseStore = {
       status,
       responseType,
       isArray,
@@ -415,7 +405,7 @@ export class NodeStorage {
     return response;
   }
 
-  public upsertResponse(nodeName: string, endpointName: string, status: number, response: Response) {
+  public upsertResponse(nodeName: string, endpointName: string, status: number, response: ResponseStore) {
     const storedResponse = this.findOrCreateResponseByStatus(nodeName, endpointName, status);
 
     storedResponse.status = response.status ? response.status : storedResponse.status;
@@ -433,7 +423,7 @@ export class NodeStorage {
   public createResponseType(name: string, typeScheme: Hashtable<string>, type: Types) {
     const scheme: Array<Parameter> = Object
       .entries(typeScheme)
-      .reduce((params, [ field, type ]) => concat(params, generateParamMeta(field, type)), []);
+      .reduce((params, [field, type]) => params.concat(generateParamMeta(field, type)), []);
 
     const responseType = {
       name,
@@ -482,7 +472,7 @@ export class NodeStorage {
     return this.createEndpoint(node.name, endpointName, null, null);
   }
 
-  public findResponseByStatus(nodeName: string, endpointName: string, status: number): Response {
+  public findResponseByStatus(nodeName: string, endpointName: string, status: number): ResponseStore {
     const endpoint = this.findEndpointByName(nodeName, endpointName);
 
     if (!endpoint) {
@@ -493,7 +483,7 @@ export class NodeStorage {
     return endpoint.responses.find((response) => response.status === status) || null;
   }
 
-  public findOrCreateResponseByStatus(nodeName: string, endpointName: string, status: number): Response {
+  public findOrCreateResponseByStatus(nodeName: string, endpointName: string, status: number): ResponseStore {
     const response = this.findResponseByStatus(nodeName, endpointName, status);
 
     if (response) {
@@ -567,7 +557,7 @@ export class NodeStorage {
   public getNodeFullPath(nodeName: string): string {
     const node = this.findNodeByName(nodeName);
     if (node.relatedTo) {
-      const partOfPath = [ this.getNodeFullPath(node.relatedTo), node.combiner, node.path ]
+      const partOfPath = [this.getNodeFullPath(node.relatedTo), node.combiner, node.path]
         .filter((part) => part !== null);
 
       return urlResolve(...partOfPath);

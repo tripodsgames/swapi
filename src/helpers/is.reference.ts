@@ -1,3 +1,1 @@
-export function isReference(type: string) {
-  return type.indexOf('#/') === 0;
-}
+export const isReference = (type: string) => type.indexOf('#/') === 0;
